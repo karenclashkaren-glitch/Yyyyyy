@@ -1,0 +1,32 @@
+{
+  "log": {
+    "level": "info",
+    "timestamp": true
+  },
+  "inbounds": [
+    {
+      "type": "vless",
+      "tag": "vless-in",
+      "listen": "::",
+      "listen_port": ${PORT},
+      "users": [
+        {
+          "uuid": "${UUID}",
+          "flow": ""
+        }
+      ],
+      "transport": {
+        "type": "ws",
+        "path": "${WSPATH}",
+        "max_early_data": 2048,
+        "early_data_header_name": "Sec-WebSocket-Protocol"
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    }
+  ]
+}
