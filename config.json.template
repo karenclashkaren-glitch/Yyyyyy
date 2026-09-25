@@ -7,8 +7,8 @@
     {
       "type": "vless",
       "tag": "vless-in",
-      "listen": "::",
-      "listen_port": ${PORT},
+      "listen": "127.0.0.1",
+      "listen_port": 10000,
       "users": [
         {
           "uuid": "${UUID}",

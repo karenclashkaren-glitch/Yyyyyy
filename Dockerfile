@@ -1,6 +1,6 @@
 FROM alpine:3.20
 
-RUN apk add --no-cache curl jq tar gzip bash gettext ca-certificates
+RUN apk add --no-cache curl jq tar gzip bash gettext ca-certificates nginx python3
 
 # Fetch and install the latest sing-box release for the container's architecture
 RUN set -eux; \
@@ -21,13 +21,17 @@ RUN set -eux; \
 
 WORKDIR /app
 COPY config.json.template /app/config.json.template
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+COPY nginx.conf.template /app/nginx.conf.template
+COPY panel/ /app/panel/
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
-# Default WebSocket path; override with a WSPATH env var in Railway if you want
+# Defaults; override any of these as Railway service variables
 ENV WSPATH=/vless
+ENV PANEL_USERNAME=admin
 
-# Railway injects PORT at runtime and routes its public HTTPS domain to it
+# Railway injects PORT at runtime; nginx is the only process bound to it.
+# sing-box and the panel both listen on localhost-only internal ports.
 EXPOSE 8080
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/app/start.sh"]
