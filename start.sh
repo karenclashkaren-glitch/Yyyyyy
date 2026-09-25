@@ -55,7 +55,7 @@ SINGBOX_PID=$!
 python3 /app/panel/server.py &
 PANEL_PID=$!
 
-nginx -c /app/nginx.conf -g 'daemon off;' &
+/usr/sbin/nginx -c /app/nginx.conf -g 'daemon off;' &
 NGINX_PID=$!
 
 trap 'kill -TERM $SINGBOX_PID $PANEL_PID $NGINX_PID 2>/dev/null || true' TERM INT

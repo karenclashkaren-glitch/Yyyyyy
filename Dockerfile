@@ -1,8 +1,15 @@
-FROM alpine:3.20
+FROM debian:bookworm-slim
 
-RUN apk add --no-cache curl jq tar gzip bash gettext ca-certificates nginx python3
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Fetch and install the latest sing-box release for the container's architecture
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl jq tar gzip ca-certificates gettext-base nginx python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Fetch and install the latest sing-box release for the container's architecture.
+# sing-box's official release binaries are dynamically linked against glibc,
+# which is why this image is Debian-based rather than Alpine (musl) - an
+# Alpine base fails at runtime with "cannot execute: required file not found".
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "$ARCH" in \

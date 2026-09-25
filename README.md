@@ -39,6 +39,7 @@ subscription URL. Service → **Variables**:
 | `PANEL_USERNAME` | Dashboard login username                   | `admin` |
 | `PANEL_PASSWORD` | Dashboard login password                   | random, regenerates each restart |
 | `WSPATH`         | VLESS WebSocket path                       | `/vless` |
+| `CLEAN_IPS`      | Seed list of clean IPs (see below)         | empty |
 
 Generate a UUID with `uuidgen` or any UUIDv4 generator. For `SUBTOKEN` and
 `PANEL_PASSWORD`, any long random string works.
@@ -63,6 +64,24 @@ The `/sub/` endpoint itself needs no login (subscription-fetching apps
 don't send credentials) — its security is the random token in the URL, so
 treat that URL like a password. Don't post it publicly.
 
+## Clean IPs
+
+VLESS+WS+TLS lets a client dial one IP while its TLS SNI and WS Host header
+say another — the edge routes on SNI/Host, not on which IP you connected
+to. If your ISP throttles some of Railway's edge IPs but not others,
+pointing at an unblocked ("clean") one while keeping SNI/Host set to your
+Railway domain still reaches this service.
+
+Paste a batch of IPs (one per line, `ip` or `ip:port`) into the "Add /
+update clean IPs" box on the dashboard and save. Each one gets its own
+link — same UUID, domain, and path, just a different connect address — and
+all of them (plus the primary domain link) are included in the
+subscription URL, so a client can try each and use whichever works.
+
+That list lives in memory and resets if the service restarts; set it as
+the `CLEAN_IPS` variable too (same format) if you want it to survive
+redeploys.
+
 ## Files
 
 - `Dockerfile` — installs sing-box, nginx, python3
@@ -74,9 +93,9 @@ treat that URL like a password. Don't post it publicly.
 
 ## Notes
 
-- This panel is read-only by design — it displays what's set via env vars.
-  To rotate the UUID or subscription token, change the Railway variable and
-  redeploy.
+- The UUID, path, subscription token, and panel login are read-only in the
+  panel — change those via Railway variables and redeploy. Only the clean
+  IP list is editable live.
 - Railway's free tier has usage limits and isn't meant for heavy, sustained
   proxy traffic — fine for personal use; check current
   [pricing/limits](https://railway.com/pricing) if you'll use it a lot.
